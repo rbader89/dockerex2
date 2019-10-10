@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  influxdb:
+    image: influxdb:latest
+    volumes:
+      - "influx:/var/lib/influxdb"
+    ports:
+      - "8086:8086"
+  telegraf:
+    image: telegraf:latest
+    volumes:
+      - "$PWD/telegraf.conf:/etc/telegraf/telegraf.conf:Z"
+    depends_on:
+      - "influxdb"
+    links:
+      - influxdb
+  chrono:
+    image: chronograf:latest
+    depends_on:
+      - "influxdb"
+    ports:
+      - "8888:8888"
+    command: ["--influxdb-url=http://influxdb:8086"]
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - "grafana:/var/lib/grafana/"
+    ports:
+      - "3000:3000"
+    links:
+      - influxdb
+    depends_on:
+      - influxdb
+volumes:
+  influx:
+  grafana:

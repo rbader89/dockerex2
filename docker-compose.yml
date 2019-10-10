@@ -7,12 +7,20 @@ services:
     - mysql
     build:
       context: .
+      args:
+        hostname: testhost
       dockerfile: Dockerfile-apache
     ports:
     - "8080:80"
     restart: unless-stopped
     links:
     - mysql
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:808"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
   mysql:
     image: mysql:latest
     environment:
